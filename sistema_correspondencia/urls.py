@@ -20,6 +20,7 @@ from email_service.api.views import EmailAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/registro_recibido/', include('registro.urls')),
+    path('api/registro/', include('registro.urls')),
+    path('api/usuarios/', include('usuarios.urls', 'usuarios')),
     path('send-email', EmailAPIView.as_view(), name='send-email'),
 ]
