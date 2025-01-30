@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'usuarios',
+    'knox',
     'registro',
+    'django_rest_passwordreset',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +55,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+
+AUTH_USER_MODEL = 'usuarios.CustomUser'
 
 ROOT_URLCONF = 'sistema_correspondencia.urls'
 
@@ -126,9 +133,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    
-]
 
 #Servidor de correo
 DEFAULT_FROM_EMAIL = 'isatest172813@gmail.com'
