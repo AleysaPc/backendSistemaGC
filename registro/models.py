@@ -1,5 +1,5 @@
 from django.db import models
-
+from usuarios.models import CustomUser
 
 # Create your models here.
 class Directorio(models.Model):
@@ -28,8 +28,14 @@ class RegistroRecibido(models.Model):
     fojas = models.IntegerField()
     adjunto = models.FileField(upload_to='adjunto/')
     detalle = models.TextField()
-    entregado = models.BooleanField(default=False)
-    destinatario = models.EmailField()
+    estadoEntrega = models.BooleanField(default=False)
+    destinatarios = models.ManyToManyField(CustomUser)
+    estadoLectura = models.BooleanField(default=False)  # Si ha sido leído o no
+    tipoDocumento = models.CharField(max_length=50, choices=[('Informe', 'Informe'), ('Contrato', 'Contrato'), ('Memorándum', 'Memorándum')])  # Añadir tipo de documento como opciones
+    prioridad = models.CharField(max_length=10, choices=[('Alta', 'Alta'), ('Normal', 'Normal'), ('Baja', 'Baja')], default='Normal')  # Prioridad del documento
+    comentarios = models.TextField(blank=True, null=True)  # Comentarios internos opcionales
+    fechaLimite = models.DateField(null=True, blank=True)  # Fecha límite opcional
+
 
     def __str__(self):
         return  "Reg-00"+str(self.idrecibido) + ' - ' + (self.referencia) + ' - ' + (self.remitente.nombre) + ' - ' + (self.remitente.institucion) 
