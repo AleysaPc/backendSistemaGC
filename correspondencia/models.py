@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
-from documento.models import Documento
+from django.apps import apps
 from cliente.models import Cliente
 from usuarios.models import Personal
 
@@ -26,7 +26,7 @@ class Correspondencia(models.Model):
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_limite_respuesta = models.DateField(blank=True, null=True)
     estado = models.CharField(max_length=50)
-    documento = models.ForeignKey(Documento, on_delete=models.SET_NULL, null=True)
+    documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, related_name="correspondencias")
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
     tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True)
