@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 from django.db import models
-from backend.documento.models import Documento
+from documento.models import Documento
 from cliente.models import Cliente
 from usuarios.models import Personal
 

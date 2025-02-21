@@ -1,5 +1,5 @@
 from django.db import models
-from backend.correspondencia.models import TipoDocumento
+from correspondencia.models import TipoDocumento
 
 # Create your models here.
 class Plantilla(models.Model):
