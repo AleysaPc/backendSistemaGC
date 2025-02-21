@@ -1,5 +1,5 @@
 """
-ASGI config for sistema_correspondencia project.
+ASGI config for gestion_correspondencia project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

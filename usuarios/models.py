@@ -36,9 +36,10 @@ class CustomUser(AbstractUser):
     email = models.EmailField(max_length=200, unique=True)
     birthday = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=200, null=True, blank=True)
-    
     # Relación de muchos a uno con el modelo Role
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
+    estado = models.CharField(max_length=50, default='activo')
+    fecha_registro = models.DateField(auto_now_add=True)
 
     objects = CustomUserManager()
 
@@ -47,6 +48,15 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.email}"
+class Personal(models.Model):
+        usuario = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='personal')
+        nombre = models.CharField(max_length=100)
+        apellido = models.CharField(max_length=100)
+        cargo = models.CharField(max_length=100)
+        empresa = models.CharField(max_length=100)
+        email = models.EmailField(max_length=200, blank=True, null=True)
+        direccion = models.TextField(blank=True, null=True)
+        telefono = models.CharField(max_length=20, blank=True, null=True)
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(reset_password_token, *args, **kwargs):
@@ -75,4 +85,4 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
     msg.attach_alternative(html_message, "text/html")
     msg.send()
 
-
+    

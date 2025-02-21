@@ -1,5 +1,5 @@
 """
-URL configuration for sistema_correspondencia project.
+URL configuration for gestion_correspondencia project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -20,8 +20,5 @@ from email_service.api.views import EmailAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/registro/', include('registro.urls')),
-    path('api/usuarios/', include('usuarios.urls')),
-    
     path('send-email', EmailAPIView.as_view(), name='send-email'),
 ]
