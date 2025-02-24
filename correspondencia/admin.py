@@ -1,6 +1,8 @@
 from django.contrib import admin
+from .models import Correspondencia, CorrespondenciaEntrante, CorrespondenciaSaliente
 
-from correspondencia.models import Correspondencia
 
-# Register your models here.
 admin.site.register(Correspondencia)
+admin.site.register(CorrespondenciaEntrante)
+admin.site.register(CorrespondenciaSaliente)
+
