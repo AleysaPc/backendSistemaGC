@@ -2,13 +2,27 @@ from django.db import models
 from cliente.models import Cliente
 from usuarios.models import Personal
 
-
 class TipoDocumento(models.Model):
-    nombre = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.nombre
+    @staticmethod
+    def cargar_tipos_documento():
+        """Carga automáticamente los tipos de documentos con sus descripciones si no existen en la BD"""
+        tipos = [
+            ("Memorando", "Comunicación interna entre áreas de la organización."),
+            ("Oficio", "Documento formal dirigido a entidades externas."),
+            ("Carta", "Comunicación formal entre instituciones o personas."),
+            ("Informe", "Documento con análisis o reportes sobre un tema específico."),
+            ("Acta", "Registro oficial de reuniones o decisiones tomadas."),
+            ("Resolución", "Documento que expresa una decisión oficial."),
+            ("Circular", "Comunicación masiva para informar sobre disposiciones o novedades."),
+        ]
+
+        for nombre, descripcion in tipos:
+            TipoDocumento.objects.get_or_create(nombre=nombre, defaults={"descripcion": descripcion})
 
 class Correspondencia(models.Model):
 
@@ -20,7 +34,7 @@ class Correspondencia(models.Model):
     descripcion = models.TextField()
     paginas = models.IntegerField()
     tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True)
-    #documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, related_name="correspondencias_relacionadas")
+    documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, related_name="correspondencias_relacionadas")
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
     estado = models.CharField(max_length=50)
     personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
@@ -32,6 +46,7 @@ class CorrespondenciaEntrante(models.Model):
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
     correspondencia = models.OneToOneField(Correspondencia, on_delete=models.CASCADE, related_name='entrantes')
+
 class CorrespondenciaSaliente(models.Model):
     cite = models.CharField(max_length=50, blank=True, null=True)
     fecha_hora_envio = models.DateTimeField(blank=True, null=True)
