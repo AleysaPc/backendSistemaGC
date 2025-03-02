@@ -119,11 +119,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/La_Paz'
 
 USE_I18N = True
 
 USE_TZ = True
+# Formato de fecha y hora en el Admin
+DATETIME_FORMAT = 'd/m/Y H:i'  # Formato: día/mes/año hora:minutos
 
 
 # Static files (CSS, JavaScript, Images)

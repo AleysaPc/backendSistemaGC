@@ -1,4 +1,4 @@
-from correspondencia.models import Correspondencia
+from correspondencia.models import Correspondencia, CorrespondenciaEntrante
 from rest_framework import serializers
 
 

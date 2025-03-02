@@ -58,6 +58,9 @@ class Personal(models.Model):
         direccion = models.TextField(blank=True, null=True)
         telefono = models.CharField(max_length=20, blank=True, null=True)
 
+        def __str__(self):
+            return f"{self.email}"
+
 @receiver(reset_password_token_created)
 def password_reset_token_created(reset_password_token, *args, **kwargs):
     sitelink = "http://localhost:5173/"

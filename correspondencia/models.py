@@ -1,8 +1,9 @@
 from django.db import models
 from cliente.models import Cliente
 from usuarios.models import Personal
-from django.db.models import F, Count
-from datetime import datetime
+from django.db import transaction
+from django.db.models import F
+
 
 class TipoDocumento(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
@@ -45,20 +46,23 @@ class Correspondencia(models.Model):
         return f"{self.tipo_documento} - {self.referencia}"
         
 class CorrespondenciaEntrante(models.Model):
-    nro_registro = models.CharField(max_length=50, blank=True, null=True, unique=True, editable=False)
-    
-    def save(self, *args, **kwargs):
+    nro_registro = models.CharField(max_length=50, blank=True, null=True)
 
+    def save(self, *args, **kwargs):
         if not self.nro_registro:
-            last_record = CorrespondenciaEntrante.objects.all().order_by('-nro_registro').first()
+            with transaction.atomic():
+            # Bloquea el último registro para evitar concurrencia
+                last_record = CorrespondenciaEntrante.objects.select_for_update().order_by('-nro_registro').first()
             if last_record:
-                last_number = int(last_record.nro_registro)
-                self.nro_registro = str(last_number + 1).zfill(3)  # Asegura que tenga 6 dígitos
-            else:
+                # Extrae el número del último registro y lo incrementa
+                last_number = int(last_record.nro_registro.split('-')[-1])
                 self.nro_registro = f'Reg-{last_number + 1:03}'
+            else:
+                # Si no hay registros, comienza con "Reg-001"
+                self.nro_registro = 'Reg-001'
+    
         super().save(*args, **kwargs)
-    
-    
+
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
     correspondencia = models.OneToOneField(Correspondencia, on_delete=models.CASCADE, related_name='entrantes')

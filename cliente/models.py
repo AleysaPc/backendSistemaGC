@@ -14,3 +14,5 @@ class Cliente(models.Model):
     email = models.EmailField()
     institucion = models.ForeignKey('cliente.Institucion', on_delete=models.SET_NULL, null=True)
     
+    def __str__(self):
+        return self.nombre + ' ' + self.apellido
