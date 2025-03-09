@@ -36,14 +36,16 @@ class Correspondencia(models.Model):
     referencia = models.CharField(max_length=255)
     descripcion = models.TextField()
     paginas = models.IntegerField()
-    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True)
+    #tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True)
     documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, related_name="correspondencias_relacionadas")
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
     estado = models.CharField(max_length=50)
     personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
     
+
+    
     def __str__(self):
-        return f"{self.tipo_documento} - {self.referencia}"
+        return f"{self.referencia}"
         
 class CorrespondenciaEntrante(models.Model):
     nro_registro = models.CharField(max_length=50, blank=True, null=True)
