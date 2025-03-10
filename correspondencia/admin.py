@@ -39,23 +39,7 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
         return ""
     fecha_respuesta_formateada.short_description = 'Fecha de Respuesta'
 
-#Para enviar notificacion mediante correo
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change) 
-
-        if not change:  # Solo si es un nuevo documento
-            nro_registro = f'Nuevo documento registrado: {obj.nro_registro}'
-            referencia = f'Se ha registrado un nuevo documento con el asunto: {obj.correspondencia.referencia}.\n\nContenido: {obj.correspondencia.referencia}'
-            destinatarios = ['isabella172813@gmail.com']  # Lista de correos
-
-            send_mail(
-                nro_registro,
-                referencia,
-                'isatest172813@gmail.com',  # Remitente
-                destinatarios,  # Lista de destinatarios
-                fail_silently=False,
-            )  
-    
+  
 # Registra los demás modelos sin personalización
 admin.site.register(Correspondencia)
 admin.site.register(CorrespondenciaSaliente)
