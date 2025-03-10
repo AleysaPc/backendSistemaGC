@@ -138,7 +138,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "correspondencia/static"),
 ]
-MEDIA_URL = '/media/'  # URL para acceder a los archivos multimedia
+MEDIA_URL = '/documentos/'  # URL para acceder a los archivos multimedia
 MEDIA_ROOT = os.path.join(BASE_DIR, 'documentos')  # Ruta donde se almacenan los archivos multimedia
 
 # Default primary key field type
