@@ -18,4 +18,4 @@ class Cliente(models.Model):
     institucion = models.ForeignKey('cliente.Institucion', on_delete=models.SET_NULL, null=True)
     
     def __str__(self):
-        return self.nombre + ' ' + self.apellido
+        return f"{self.nombre} {self.apellido} - {self.cargo} - {self.institucion}"

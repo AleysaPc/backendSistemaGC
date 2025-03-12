@@ -2,7 +2,7 @@ from django.db import models
 from cliente.models import Cliente
 from usuarios.models import Personal
 from django.db import transaction
-from django.db.models import F
+from django.core.validators import MinValueValidator
 
 
 class TipoDocumento(models.Model):
@@ -35,7 +35,7 @@ class Correspondencia(models.Model):
     remitente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     referencia = models.CharField(max_length=255)
     descripcion = models.TextField()
-    paginas = models.IntegerField()
+    paginas = models.IntegerField(validators=[MinValueValidator(1)])
     #tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True)
     documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, related_name="correspondencias_relacionadas")
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
@@ -45,8 +45,11 @@ class Correspondencia(models.Model):
 
     
     def __str__(self):
-        return f"{self.referencia}"
-        
+        return f"{self.referencia} "
+    
+#Contardor para notas recibidas
+class ContadorRegistroEntrante(models.Model):
+    ultimo_registro = models.IntegerField(default=0)
 class CorrespondenciaEntrante(models.Model):
     nro_registro = models.CharField(max_length=50, blank=True, null=True)
 
@@ -54,14 +57,10 @@ class CorrespondenciaEntrante(models.Model):
         if not self.nro_registro:
             with transaction.atomic():
             # Bloquea el último registro para evitar concurrencia
-                last_record = CorrespondenciaEntrante.objects.select_for_update().order_by('-nro_registro').first()
-            if last_record:
-                # Extrae el número del último registro y lo incrementa
-                last_number = int(last_record.nro_registro.split('-')[-1])
-                self.nro_registro = f'Reg-{last_number + 1:03}'
-            else:
-                # Si no hay registros, comienza con "Reg-001"
-                self.nro_registro = 'Reg-001'
+                contador, created = ContadorRegistroEntrante.objects.select_for_update().get_or_create(id=1)
+                contador.ultimo_registro += 1
+                contador.save()
+                self.nro_registro = f'Reg-{contador.ultimo_registro:03}'
     
         super().save(*args, **kwargs)
 
@@ -69,12 +68,39 @@ class CorrespondenciaEntrante(models.Model):
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
     correspondencia = models.OneToOneField(Correspondencia, on_delete=models.CASCADE, related_name='entrantes')
 
+####Correspondencia Saliente
+#Contador para cites
+class ContadorCiteSaliente(models.Model):
+    ultimo_cite = models.IntegerField(default=0)
 class CorrespondenciaSaliente(models.Model):
+
+    ESTADOS = (
+        ('borrador', 'Borrador'),
+        ('revision', 'En revisión'),
+        ('enviado', 'Enviado'),
+   
+    )
+
     cite = models.CharField(max_length=50, blank=True, null=True)
-    fecha_hora_envio = models.DateTimeField(blank=True, null=True)
-    fecha_hora_confirmacion_recepcion = models.DateTimeField(blank=True, null=True)
-    fecha_proximo_seguimiento = models.DateTimeField(blank=True, null=True)
+    fecha_envio = models.DateTimeField(blank=True, null=True)
+    fecha_recepcion = models.DateTimeField(blank=True, null=True)
+    fecha_seguimiento = models.DateTimeField(blank=True, null=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='borrador')
     correspondencia = models.OneToOneField(Correspondencia, on_delete=models.CASCADE, related_name='saliente')
+    def save(self, *args, **kwargs):
+            if not self.cite:
+                with transaction.atomic():
+                    # Bloquea el último registro para evitar concurrencia
+                    contador, created = ContadorCiteSaliente.objects.select_for_update().get_or_create(id=1)
+                    contador.ultimo_cite += 1
+                    contador.save()
+                    self.cite = f'CITE:FTL-FTA/DLP/Nro.-{contador.ultimo_cite:04}'
+            
+            super().save(*args, **kwargs)
+
+    def __str__(self):
+            return f"Correspondencia Saliente {self.cite}"
+
 
 class FlujoAprobacion(models.Model):
 

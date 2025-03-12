@@ -3,6 +3,9 @@ from correspondencia.models import TipoDocumento
 
 # Create your models here.
 class Plantilla(models.Model):
-    nombre_plantilla = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100)
+    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE)
     contenido = models.TextField()
-    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, related_name='plantillas')
+
+    def __str__(self):
+        return f"{self.nombre} - {self.tipo_documento.nombre}"
