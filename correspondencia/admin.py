@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from docx import Document
 from io import BytesIO
 from .models import Correspondencia, CorrespondenciaEntrante, CorrespondenciaSaliente, TipoDocumento
+from .models import FlujoAprobacion, DescargaDocumento
 
 
 # Configuración personalizada para CorrespondenciaEntrante
@@ -28,7 +29,7 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
     def mostrar_remitente(self, obj):
        remitente = obj.correspondencia.remitente
        institucion = remitente.institucion 
-       return f"{remitente.nombre} - {institucion.nombre}"
+       return f"{remitente.nombre} - {remitente.apellido} - {institucion.nombre}"
     mostrar_remitente.short_description = 'Remitente'
 
     def fecha_recepcion_formateada(self, obj):
@@ -45,11 +46,33 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
 
 @admin.register(CorrespondenciaSaliente)
 class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
-    exclude = ('fecha_recepcion', 'fecha_seguimiento', 'cite')
+    exclude = ('cite','fecha_recepcion', 'fecha_seguimiento',)
     readonly_fields = ('cite',)  # Marca 'cite' como solo lectura
-    
+    list_display = ('get_correspondencia_remitente', 'get_correspondencia_referencia', 'get_correspondencia_descripcion', 'get_correspondencia_prioridad', 'get_correspondencia_estado', 'get_correspondencia_personal_destinatario',)
 
+    def get_correspondencia_remitente(self, obj):
+        return obj.correspondencia.remitente
+    get_correspondencia_remitente.short_description = 'Remitente'
 
+    def get_correspondencia_referencia(self, obj):
+        return obj.correspondencia.referencia
+    get_correspondencia_referencia.short_description = 'Referencia'
+
+    def get_correspondencia_descripcion(self, obj):
+        return obj.correspondencia.descripcion
+    get_correspondencia_descripcion.short_description = 'Descripción'
+
+    def get_correspondencia_prioridad(self, obj):
+        return obj.correspondencia.prioridad
+    get_correspondencia_prioridad.short_description = 'Prioridad'
+
+    def get_correspondencia_estado(self, obj):
+        return obj.correspondencia.estado
+    get_correspondencia_estado.short_description = 'Estado'
+
+    def get_correspondencia_personal_destinatario(self, obj):
+        return obj.correspondencia.personal_destinatario
+    get_correspondencia_personal_destinatario.short_description = 'Personal destinatario'
 
     actions = ['generar_documento_word',]
     def generar_documento_word(self, request, queryset):
@@ -70,6 +93,7 @@ class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
         doc.add_paragraph(f"Ref.: {correspondencia_saliente.correspondencia.referencia}")
         doc.add_paragraph(correspondencia_saliente.correspondencia.descripcion)
 
+
         # Guardar el archivo en un buffer
         buffer = BytesIO()
         doc.save(buffer)
@@ -84,14 +108,19 @@ class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
         return response
 
     generar_documento_word.short_description = "Generar documento Word"
-
-
+@admin.register(DescargaDocumento)
+class DescargaDocumentoAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'documento', 'fecha_descarga')
+    list_filter = ('usuario', 'documento')
+    search_fields = ('usuario__nombre', 'documento__cite')
+    readonly_fields = ('fecha_descarga',)
 
   
 
 
 
 # Registra los demás modelos sin personalización
+
 admin.site.register(Correspondencia)
 admin.site.register(TipoDocumento)
 

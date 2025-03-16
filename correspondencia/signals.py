@@ -10,7 +10,17 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
         # Accede a los atributos de Correspondencia a través de la relación
         nro_registro = instance.nro_registro
         referencia = instance.correspondencia.referencia
-        fecha_respuesta = instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M')
+
+    if instance.fecha_respuesta is not None:
+        fecha_respuesta_formateada = instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M')
+    else:
+        fecha_respuesta_formateada = None  # O simplemente omite el formateo
+
+    # Aquí puedes continuar con el envío de la notificación
+    if fecha_respuesta_formateada:
+        print(f"Notificación enviada. Fecha de respuesta: {fecha_respuesta_formateada}")
+    else:
+        print("Notificación enviada. Fecha de respuesta: No especificada")
         #Para adjuntar el documento
         documento = instance.correspondencia.documento.archivo.path
 
@@ -37,7 +47,7 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
         mensaje += f'Remitente: {nombre_remitente}\n'
         mensaje += f'Cargo: {cargo_remitente}\n'
         mensaje += f'Empresa: {empresa_remitente}\n'
-        mensaje += f'Fecha límite de respuesta: {fecha_respuesta}\n'
+        mensaje += f'Fecha límite de respuesta: {fecha_respuesta_formateada}\n'
         
         # Lista de destinatarios
         destinatarios = ['isabella172813@gmail.com']

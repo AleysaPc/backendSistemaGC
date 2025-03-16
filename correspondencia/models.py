@@ -4,7 +4,6 @@ from usuarios.models import Personal
 from django.db import transaction
 from django.core.validators import MinValueValidator
 
-
 class TipoDocumento(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.TextField(blank=True, null=True)
@@ -45,7 +44,7 @@ class Correspondencia(models.Model):
 
     
     def __str__(self):
-        return f"{self.referencia} "
+        return f"{self.referencia} " 
     
 #Contardor para notas recibidas
 class ContadorRegistroEntrante(models.Model):
@@ -80,13 +79,22 @@ class CorrespondenciaSaliente(models.Model):
         ('enviado', 'Enviado'),
    
     )
-
     cite = models.CharField(max_length=50, blank=True, null=True)
     fecha_envio = models.DateTimeField(blank=True, null=True)
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_seguimiento = models.DateTimeField(blank=True, null=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='borrador')
-    correspondencia = models.OneToOneField(Correspondencia, on_delete=models.CASCADE, related_name='saliente')
+    def get_correspondencia_fields(self):
+        return {
+            'remitente': self.get_correspondencia.remitente,
+            'referencia': self.get_correspondencia.referencia,
+            'descripcion': self.get_correspondencia.descripcion,
+            'prioridad': self.get_correspondencia.prioridad,
+            'estado': self.get_correspondencia.estado,
+            'personal_destinatario': self.get_correspondencia.personal_destinatario,
+        }  
+    archivo_word = models.FileField(upload_to='documentos_borrador/', blank=True, null=True)
+    
     def save(self, *args, **kwargs):
             if not self.cite:
                 with transaction.atomic():
@@ -99,8 +107,7 @@ class CorrespondenciaSaliente(models.Model):
             super().save(*args, **kwargs)
 
     def __str__(self):
-            return f"Correspondencia Saliente {self.cite}"
-
+            return f"{self.cite} - {self.estado}"
 
 class FlujoAprobacion(models.Model):
 
@@ -112,6 +119,18 @@ class FlujoAprobacion(models.Model):
     estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default="Pendiente")
     comentarios = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.revisor.usuario} - {self.estado}"
+
+class DescargaDocumento(models.Model):
+    usuario = models.ForeignKey(Personal, on_delete=models.CASCADE)
+    documento = models.ForeignKey('CorrespondenciaSaliente', on_delete=models.CASCADE)
+    fecha_descarga = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} descargó {self.documento.cite}"
+
+#Por el  momento no lo estamos utilizando
 class Notificacion(models.Model):
 
     ESTADO_NOTIFICACION_CHOICES = [('no_leido', 'No leido'), ('leido', 'Leido')]
