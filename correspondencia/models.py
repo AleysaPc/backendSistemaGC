@@ -34,22 +34,23 @@ class Correspondencia(models.Model):
     remitente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     referencia = models.CharField(max_length=255)
     descripcion = models.TextField()
-    paginas = models.IntegerField(validators=[MinValueValidator(1)])
+    paginas = models.IntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
     #tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True)
     documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, related_name="correspondencias_relacionadas")
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
-    estado = models.CharField(max_length=50)
+    estado = models.CharField(max_length=50, null=True, blank=True)
     personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
     
+    class Meta:
+        abstract = False
 
-    
     def __str__(self):
         return f"{self.referencia} " 
     
 #Contardor para notas recibidas
 class ContadorRegistroEntrante(models.Model):
     ultimo_registro = models.IntegerField(default=0)
-class CorrespondenciaEntrante(models.Model):
+class CorrespondenciaEntrante(Correspondencia):
     nro_registro = models.CharField(max_length=50, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -65,34 +66,16 @@ class CorrespondenciaEntrante(models.Model):
 
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
-    correspondencia = models.OneToOneField(Correspondencia, on_delete=models.CASCADE, related_name='entrantes')
 
 ####Correspondencia Saliente
 #Contador para cites
 class ContadorCiteSaliente(models.Model):
     ultimo_cite = models.IntegerField(default=0)
-class CorrespondenciaSaliente(models.Model):
-
-    ESTADOS = (
-        ('borrador', 'Borrador'),
-        ('revision', 'En revisión'),
-        ('enviado', 'Enviado'),
-   
-    )
+class CorrespondenciaSaliente(Correspondencia):
     cite = models.CharField(max_length=50, blank=True, null=True)
     fecha_envio = models.DateTimeField(blank=True, null=True)
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_seguimiento = models.DateTimeField(blank=True, null=True)
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='borrador')
-    def get_correspondencia_fields(self):
-        return {
-            'remitente': self.get_correspondencia.remitente,
-            'referencia': self.get_correspondencia.referencia,
-            'descripcion': self.get_correspondencia.descripcion,
-            'prioridad': self.get_correspondencia.prioridad,
-            'estado': self.get_correspondencia.estado,
-            'personal_destinatario': self.get_correspondencia.personal_destinatario,
-        }  
     archivo_word = models.FileField(upload_to='documentos_borrador/', blank=True, null=True)
     
     def save(self, *args, **kwargs):
@@ -107,7 +90,7 @@ class CorrespondenciaSaliente(models.Model):
             super().save(*args, **kwargs)
 
     def __str__(self):
-            return f"{self.cite} - {self.estado}"
+            return f"{self.cite}"
 
 class FlujoAprobacion(models.Model):
 

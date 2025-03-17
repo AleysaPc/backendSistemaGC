@@ -46,33 +46,9 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
 
 @admin.register(CorrespondenciaSaliente)
 class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
-    exclude = ('cite','fecha_recepcion', 'fecha_seguimiento',)
+    list_display = ('cite','referencia','remitente','fecha_envio', 'estado')
+    fields = ('cite','fecha_envio','remitente','referencia','descripcion','prioridad','estado','personal_destinatario','archivo_word')
     readonly_fields = ('cite',)  # Marca 'cite' como solo lectura
-    list_display = ('get_correspondencia_remitente', 'get_correspondencia_referencia', 'get_correspondencia_descripcion', 'get_correspondencia_prioridad', 'get_correspondencia_estado', 'get_correspondencia_personal_destinatario',)
-
-    def get_correspondencia_remitente(self, obj):
-        return obj.correspondencia.remitente
-    get_correspondencia_remitente.short_description = 'Remitente'
-
-    def get_correspondencia_referencia(self, obj):
-        return obj.correspondencia.referencia
-    get_correspondencia_referencia.short_description = 'Referencia'
-
-    def get_correspondencia_descripcion(self, obj):
-        return obj.correspondencia.descripcion
-    get_correspondencia_descripcion.short_description = 'Descripción'
-
-    def get_correspondencia_prioridad(self, obj):
-        return obj.correspondencia.prioridad
-    get_correspondencia_prioridad.short_description = 'Prioridad'
-
-    def get_correspondencia_estado(self, obj):
-        return obj.correspondencia.estado
-    get_correspondencia_estado.short_description = 'Estado'
-
-    def get_correspondencia_personal_destinatario(self, obj):
-        return obj.correspondencia.personal_destinatario
-    get_correspondencia_personal_destinatario.short_description = 'Personal destinatario'
 
     actions = ['generar_documento_word',]
     def generar_documento_word(self, request, queryset):
@@ -121,6 +97,5 @@ class DescargaDocumentoAdmin(admin.ModelAdmin):
 
 # Registra los demás modelos sin personalización
 
-admin.site.register(Correspondencia)
 admin.site.register(TipoDocumento)
 
