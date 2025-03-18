@@ -28,6 +28,7 @@ class TipoDocumento(models.Model):
 
 class Correspondencia(models.Model):
 
+    TIPO_CHOICES_ESTADO = [('en_revision', 'En revisión'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')]
     TIPO_CHOICES_PRIORIDAD = [('alta', 'Alta'), ('media', 'Media'), ('baja', 'Baja')]
 
     fecha_registro = models.DateTimeField(auto_now_add=True)
@@ -36,9 +37,9 @@ class Correspondencia(models.Model):
     descripcion = models.TextField()
     paginas = models.IntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
     #tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.SET_NULL, null=True)
-    documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, related_name="correspondencias_relacionadas")
+    documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, blank=True, related_name="correspondencias_relacionadas")
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
-    estado = models.CharField(max_length=50, null=True, blank=True)
+    estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO, default='en_revision')
     personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
     
     class Meta:

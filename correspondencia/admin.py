@@ -47,9 +47,16 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
 @admin.register(CorrespondenciaSaliente)
 class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
     list_display = ('cite','referencia','remitente','fecha_envio', 'estado')
-    fields = ('cite','fecha_envio','remitente','referencia','descripcion','prioridad','estado','personal_destinatario','archivo_word')
     readonly_fields = ('cite',)  # Marca 'cite' como solo lectura
 
+    def get_fields(self, request, obj=None):
+        fields = ('cite','fecha_envio','remitente','referencia','descripcion','prioridad','estado','personal_destinatario','archivo_word')
+
+        if obj and obj.estado == 'aprobado':
+            fields += ('fecha_recepcion','fecha_seguimiento','paginas','documento',)
+        
+        return fields
+           
     actions = ['generar_documento_word',]
     def generar_documento_word(self, request, queryset):
         if queryset.count() != 1:
@@ -62,12 +69,12 @@ class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
         doc = Document()
         doc.add_paragraph(f"La Paz {correspondencia_saliente.fecha_envio.strftime('%Y-%m-%d')}")
         doc.add_paragraph(correspondencia_saliente.cite)
-        doc.add_paragraph(correspondencia_saliente.correspondencia.remitente.nombre)
-        doc.add_paragraph(correspondencia_saliente.correspondencia.remitente.apellido)
-        doc.add_paragraph(correspondencia_saliente.correspondencia.remitente.cargo)
-        doc.add_paragraph(str(correspondencia_saliente.correspondencia.remitente.institucion))    
-        doc.add_paragraph(f"Ref.: {correspondencia_saliente.correspondencia.referencia}")
-        doc.add_paragraph(correspondencia_saliente.correspondencia.descripcion)
+        doc.add_paragraph(correspondencia_saliente.remitente.nombre)
+        doc.add_paragraph(correspondencia_saliente.remitente.apellido)
+        doc.add_paragraph(correspondencia_saliente.remitente.cargo)
+        doc.add_paragraph(str(correspondencia_saliente.remitente.institucion))    
+        doc.add_paragraph(f"Ref.: {correspondencia_saliente.referencia}")
+        doc.add_paragraph(correspondencia_saliente.descripcion)
 
 
         # Guardar el archivo en un buffer
