@@ -22,12 +22,12 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
     # Metodo para mostrar la referencia
     def mostrar_referencia(self, obj):
         # Acceder al campo 'referencia' del modelo relacionado 'Correspondencia'
-        return obj.correspondencia.referencia
+        return obj.referencia
     mostrar_referencia.short_description = 'Referencia'
 
     #Metodo para mostrar remitente
     def mostrar_remitente(self, obj):
-       remitente = obj.correspondencia.remitente
+       remitente = obj.remitente
        institucion = remitente.institucion 
        return f"{remitente.nombre} - {remitente.apellido} - {institucion.nombre}"
     mostrar_remitente.short_description = 'Remitente'
@@ -46,16 +46,27 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
 
 @admin.register(CorrespondenciaSaliente)
 class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
-    list_display = ('cite','referencia','remitente','fecha_envio', 'estado')
-    readonly_fields = ('cite',)  # Marca 'cite' como solo lectura
+    list_display = ('cite', 'referencia', 'remitente', 'fecha_envio', 'estado')
+    fields = ('cite', 'fecha_envio', 'remitente', 'referencia', 'descripcion', 
+              'prioridad', 'estado', 'personal_destinatario', 'archivo_word')
+    readonly_fields = ('cite',)
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "remitente":
+            kwargs["label"] = "Destinatario"  # Cambiar el nombre en la interfaz
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
     def get_fields(self, request, obj=None):
-        fields = ('cite','fecha_envio','remitente','referencia','descripcion','prioridad','estado','personal_destinatario','archivo_word')
+        base_fields = super().get_fields(request, obj)
 
+        # Si la correspondencia está aprobada, se agregan campos adicionales y se excluye 'archivo_word'
         if obj and obj.estado == 'aprobado':
-            fields += ('fecha_recepcion','fecha_seguimiento','paginas','documento',)
-        
-        return fields
+            return tuple(field for field in base_fields if field != 'archivo_word') + (
+                'fecha_recepcion', 'fecha_seguimiento', 'paginas', 'documento'
+            )
+
+        return base_fields
+
            
     actions = ['generar_documento_word',]
     def generar_documento_word(self, request, queryset):
