@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.core.mail import EmailMessage
 from django.conf import settings
 from .models import CorrespondenciaEntrante, CorrespondenciaSaliente
+import os
 
 @receiver(post_save, sender=CorrespondenciaEntrante)
 def enviar_notificacion_correo(sender, instance, created, **kwargs):
@@ -73,59 +74,64 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
         except Exception as e:
              print(f"Error al enviar el correo: {e}")
         
+
 @receiver(post_save, sender=CorrespondenciaSaliente)
 def enviar_notificacion_correo(sender, instance, created, **kwargs):
-    if created:  # Solo si se crea un nuevo documento
-        # Accede a los atributos de Correspondencia a través de la relación
+    # Solo proceder si el estado es 'en_revision'
+    if instance.estado == "en_revision":  # Ahora sí envía la notificación en este estado
         cite = instance.cite
         referencia = instance.referencia
-        archivo_word= instance.archivo_word.path
-
         remitente = instance.remitente
+        estado = instance.estado
+
         if remitente:  # Verifica si remitente no es None
             nombre_remitente = f"{remitente.nombre} {remitente.apellido}"
             cargo_remitente = remitente.cargo
-        
-            if remitente.institucion:
-                empresa_remitente = remitente.institucion.nombre
-            else:
-                empresa_remitente = 'No especificado'
+            empresa_remitente = remitente.institucion.nombre if remitente.institucion else 'No especificado'
         else:
             nombre_remitente = 'No especificado'
             cargo_remitente = 'No especificado'
             empresa_remitente = 'No especificado'
 
-
         # Construye el asunto y el mensaje del correo
         asunto = f'Nuevo documento elaborado: {cite}'
         mensaje = f'Se ha elaborado un nuevo documento con los siguientes detalles:\n\n'
-        mensaje += f'Número de registro: {cite}\n'
+        mensaje += f'Nro. CITE: {cite}\n'
         mensaje += f'Referencia: {referencia}\n'
-        mensaje += f'Destinatario {nombre_remitente}\n'
+        mensaje += f'Remitente: {nombre_remitente}\n'
         mensaje += f'Cargo: {cargo_remitente}\n'
         mensaje += f'Empresa: {empresa_remitente}\n'
-        mensaje += f'Estado: {instance.estado}\n'
-        
+        mensaje += f'Estado: {estado}\n'
+
+
         # Lista de destinatarios
         destinatarios = ['isabella172813@gmail.com']
 
         # Envía el correo electrónico
-        email = EmailMessage (
+        email = EmailMessage(
             asunto,
             mensaje,
             'isatest172813@gmail.com',  # Remitente
             destinatarios,  # Lista de destinatarios
-           
         )
-        
-         # Adjunta el documento al correo
-        if instance.documento:  # Verifica si el documento existe
-             archivo = instance.documento.archivo  # Accede al archivo relacionado
-        if archivo:  # Verifica si el archivo está presente
-            email.attach_file(archivo.path)  # Adjunta el archivo
+
+        # Adjunta el documento al correo si existe
+        if instance.archivo_word:  # Verifica si hay un archivo cargado
+            ruta_documento = os.path.join(settings.MEDIA_ROOT, instance.archivo_word.name)  
+            print(f"Intentando adjuntar archivo: {ruta_documento}")  # Para depuración
+            
+            if os.path.exists(ruta_documento):  # Verifica si la ruta es válida
+                email.attach_file(ruta_documento)
+                print("✅ Archivo adjuntado correctamente.")
+            else:
+                print("⚠ Archivo no encontrado. Verifica la ruta.")
 
         # Envía el correo electrónico
         try:
             email.send(fail_silently=True) 
         except Exception as e:
-             print(f"Error al enviar el correo: {e}")
+            print(f"Error al enviar el correo: {e}")
+
+        
+
+    

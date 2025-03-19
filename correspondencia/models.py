@@ -28,7 +28,7 @@ class TipoDocumento(models.Model):
 
 class Correspondencia(models.Model):
 
-    TIPO_CHOICES_ESTADO = [('en_revision', 'En revisión'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')]
+    TIPO_CHOICES_ESTADO = [('borrador', 'Borrador'),('en_revision', 'En revisión'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')]
     TIPO_CHOICES_PRIORIDAD = [('alta', 'Alta'), ('media', 'Media'), ('baja', 'Baja')]
 
     fecha_registro = models.DateTimeField(auto_now_add=True)
