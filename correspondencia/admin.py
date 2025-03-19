@@ -11,7 +11,7 @@ from .models import FlujoAprobacion, DescargaDocumento
 @admin.register(CorrespondenciaEntrante)
 class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
     # Excluye el campo nro_registro del formulario
-    exclude = ('nro_registro',)
+    exclude = ('nro_registro','estado',)
 
     # Si deseas mostrar el campo como de solo lectura, agrégalo a readonly_fields
     readonly_fields = ('nro_registro',)
