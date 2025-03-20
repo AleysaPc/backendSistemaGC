@@ -3,7 +3,7 @@ from cliente.models import Cliente
 from usuarios.models import Personal
 from django.db import transaction
 from django.core.validators import MinValueValidator
-
+from django.utils.timezone import now
 #TipoDocumento debemos revisar?
 class TipoDocumento(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
@@ -106,12 +106,41 @@ class TipoDocumentoInterno(models.Model):
     
     def __str__(self):
         return self.nombre
-class DocumentoInterno(models.Model):
-    TIPO_CHOICES = [
-        ('comunicado', 'Comunicado'),
-        ('convocatoria', 'Convocatoria'),
-        ('informe', 'Informe'),
-    ]
+
+class CorrespondenciaInterna(models.Model):
+    tipo = models.ForeignKey(TipoDocumentoInterno, on_delete=models.CASCADE)
+    numero = models.PositiveIntegerField(editable=False)  # Número secuencial único
+    gestion = models.PositiveIntegerField(default=now().year, editable=False)  # Año de gestión
+    cite = models.CharField(max_length=100, unique=True, blank=True)  # Código único del documento
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    contenido = models.TextField()
+    personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        unique_together = ('tipo', 'numero', 'gestion')  # Evita duplicados por tipo y año
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # Si es un nuevo documento
+            # Buscar el último número registrado del mismo tipo y año
+            ultimo_documento = CorrespondenciaInterna.objects.filter(
+                tipo=self.tipo, 
+                gestion=self.gestion
+            ).order_by('-numero').first()
+
+            # Si existe un documento previo, incrementar el número; de lo contrario, iniciar en 1
+            self.numero = (ultimo_documento.numero + 1) if ultimo_documento else 1
+
+            # Generar el código CITE
+            self.cite = f"{self.tipo.nombre[:3].upper()}-{self.numero:03d}/{self.gestion}"
+
+        super().save(*args, **kwargs)  # Guardar en la BD
+
+    def __str__(self):
+        return f"{self.cite} - {self.tipo.nombre}"
+
+
+
+
 #Por el  momento no los estamos utilizando
 class Notificacion(models.Model):
 

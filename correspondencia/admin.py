@@ -1,7 +1,7 @@
 from django.contrib import admin
 from plantilla.utils import generar_documento_word
 from .models import CorrespondenciaEntrante, CorrespondenciaSaliente, TipoDocumento
-from .models import DescargaDocumento
+from .models import DescargaDocumento,TipoDocumentoInterno, CorrespondenciaInterna
 
 
 # Configuración personalizada para CorrespondenciaEntrante
@@ -77,14 +77,21 @@ class CorrespondenciaSalienteAdmin(admin.ModelAdmin):
         if queryset.count() != 1:
             self.message_user(request, "Solo puedes generar un documento a la vez.", level='error')
             return
-        
         correspondencia_saliente = queryset.first()
         return generar_documento_word(correspondencia_saliente)  # Llamamos a la función importada
-
     accion_generar_documento_word.short_description = "Generar documento Word"
 
 
-  
+@admin.register(TipoDocumentoInterno)
+class TipoDocumentoInternoAdmin(admin.ModelAdmin):
+    list_display = ('nombre',)
+
+@admin.register(CorrespondenciaInterna)
+class CorrespondenciaInternaAdmin(admin.ModelAdmin):
+    list_display = ('cite', 'tipo', 'numero', 'gestion', 'fecha_creacion', 'personal_destinatario')
+    readonly_fields = ('numero', 'gestion', 'cite')  # No permitir modificar estos campos
+    ordering = ('-gestion', '-numero')  # Ordenar de manera descendente
+
 
 
 
