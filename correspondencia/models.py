@@ -4,6 +4,7 @@ from usuarios.models import Personal
 from django.db import transaction
 from django.core.validators import MinValueValidator
 
+#TipoDocumento debemos revisar?
 class TipoDocumento(models.Model):
     nombre = models.CharField(max_length=50, unique=True)
     descripcion = models.TextField(blank=True, null=True)
@@ -92,6 +93,34 @@ class CorrespondenciaSaliente(Correspondencia):
 
     def __str__(self):
             return f"{self.cite}"
+class DescargaDocumento(models.Model):
+    usuario = models.ForeignKey(Personal, on_delete=models.CASCADE)
+    documento = models.ForeignKey('CorrespondenciaSaliente', on_delete=models.CASCADE)
+    fecha_descarga = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario.username} descargó {self.documento.cite}"
+
+class TipoDocumentoInterno(models.Model):
+    nombre  = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.nombre
+class DocumentoInterno(models.Model):
+    TIPO_CHOICES = [
+        ('comunicado', 'Comunicado'),
+        ('convocatoria', 'Convocatoria'),
+        ('informe', 'Informe'),
+    ]
+#Por el  momento no los estamos utilizando
+class Notificacion(models.Model):
+
+    ESTADO_NOTIFICACION_CHOICES = [('no_leido', 'No leido'), ('leido', 'Leido')]
+
+    personal = models.ForeignKey(Personal, on_delete=models.CASCADE, related_name='notificaciones')
+    mensaje = models.TextField()
+    fecha_notificacion = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=50)
 
 class FlujoAprobacion(models.Model):
 
@@ -105,21 +134,3 @@ class FlujoAprobacion(models.Model):
 
     def __str__(self):
         return f"{self.revisor.usuario} - {self.estado}"
-
-class DescargaDocumento(models.Model):
-    usuario = models.ForeignKey(Personal, on_delete=models.CASCADE)
-    documento = models.ForeignKey('CorrespondenciaSaliente', on_delete=models.CASCADE)
-    fecha_descarga = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.usuario.username} descargó {self.documento.cite}"
-
-#Por el  momento no lo estamos utilizando
-class Notificacion(models.Model):
-
-    ESTADO_NOTIFICACION_CHOICES = [('no_leido', 'No leido'), ('leido', 'Leido')]
-
-    personal = models.ForeignKey(Personal, on_delete=models.CASCADE, related_name='notificaciones')
-    mensaje = models.TextField()
-    fecha_notificacion = models.DateTimeField(auto_now_add=True)
-    estado = models.CharField(max_length=50)
