@@ -48,58 +48,42 @@ class Correspondencia(models.Model):
 
     def __str__(self):
         return f"{self.referencia} " 
-    
-#Contardor para notas recibidas
-class ContadorRegistroEntrante(models.Model):
-    ultimo_registro = models.IntegerField(default=0)
+      
 class CorrespondenciaEntrante(Correspondencia):
     nro_registro = models.CharField(max_length=50, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.nro_registro:
             with transaction.atomic():
-            # Bloquea el último registro para evitar concurrencia
-                contador, created = ContadorRegistroEntrante.objects.select_for_update().get_or_create(id=1)
-                contador.ultimo_registro += 1
-                contador.save()
-                self.nro_registro = f'Reg-{contador.ultimo_registro:03}'
+                # Obtiene el último número de registro
+                ultimo = CorrespondenciaEntrante.objects.order_by('-id').first()
+                nuevo_numero = (int(ultimo.nro_registro.split('-')[1]) + 1 if ultimo and ultimo.nro_registro else 1)
+                self.nro_registro = f'Reg-{nuevo_numero:03}'
     
         super().save(*args, **kwargs)
 
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_respuesta = models.DateTimeField(blank=True, null=True)
 
-####Correspondencia Saliente
-#Contador para cites
-class ContadorCiteSaliente(models.Model):
-    ultimo_cite = models.IntegerField(default=0)
 class CorrespondenciaSaliente(Correspondencia):
     cite = models.CharField(max_length=50, blank=True, null=True)
     fecha_envio = models.DateTimeField(blank=True, null=True)
     fecha_recepcion = models.DateTimeField(blank=True, null=True)
     fecha_seguimiento = models.DateTimeField(blank=True, null=True)
     archivo_word = models.FileField(upload_to='documentos_borrador/', blank=True, null=True)
-    
+
     def save(self, *args, **kwargs):
-            if not self.cite:
-                with transaction.atomic():
-                    # Bloquea el último registro para evitar concurrencia
-                    contador, created = ContadorCiteSaliente.objects.select_for_update().get_or_create(id=1)
-                    contador.ultimo_cite += 1
-                    contador.save()
-                    self.cite = f'CITE:FTL-FTA/DLP/Nro.-{contador.ultimo_cite:04}'
-            
-            super().save(*args, **kwargs)
+        if not self.cite:
+            with transaction.atomic():
+                # Obtiene el último cite registrado y lo incrementa
+                ultimo = CorrespondenciaSaliente.objects.order_by('-id').first()
+                nuevo_cite = (int(ultimo.cite.split('-')[-1]) + 1 if ultimo and ultimo.cite else 1)
+                self.cite = f'CITE:FTL-FTA/DLP/Nro.-{nuevo_cite:04}'
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
-            return f"{self.cite}"
-class DescargaDocumento(models.Model):
-    usuario = models.ForeignKey(Personal, on_delete=models.CASCADE)
-    documento = models.ForeignKey('CorrespondenciaSaliente', on_delete=models.CASCADE)
-    fecha_descarga = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.usuario.username} descargó {self.documento.cite}"
+        return f"{self.cite}"
 
 class TipoDocumentoInterno(models.Model):
     nombre  = models.CharField(max_length=50, unique=True)
@@ -137,9 +121,6 @@ class CorrespondenciaInterna(models.Model):
 
     def __str__(self):
         return f"{self.cite} - {self.tipo.nombre}"
-
-
-
 
 #Por el  momento no los estamos utilizando
 class Notificacion(models.Model):

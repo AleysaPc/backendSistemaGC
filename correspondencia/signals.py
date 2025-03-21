@@ -7,10 +7,12 @@ import os
 
 @receiver(post_save, sender=CorrespondenciaEntrante)
 def enviar_notificacion_correo(sender, instance, created, **kwargs):
+    
+    nro_registro = instance.nro_registro
+    referencia = instance.referencia
+
     if created:  # Solo si se crea un nuevo documento
-        # Accede a los atributos de Correspondencia a través de la relación
-        nro_registro = instance.nro_registro
-        referencia = instance.referencia
+        print("Documento creado")
 
     if instance.fecha_respuesta is not None:
         fecha_respuesta_formateada = instance.fecha_respuesta.strftime('%d/%m/%Y %H:%M')
@@ -23,7 +25,7 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
     else:
         print("Notificación enviada. Fecha de respuesta: No especificada")
         #Para adjuntar el documento
-        documento = instance.documento.archivo.path
+        documento = instance.documento.archivo.path if instance.documento else None
 
         remitente = instance.remitente
         if remitente:  # Verifica si remitente no es None

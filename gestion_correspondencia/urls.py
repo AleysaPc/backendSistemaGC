@@ -19,13 +19,14 @@ from django.urls import path, include
 from email_service.api.views import EmailAPIView
 from django.conf import settings
 from django.conf.urls.static import static
-from documento.views import registrar_apertura
+
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/correspondencia/',include(('correspondencia.urls','correspondencia'), namespace='correspondencia')),
     path('send-email', EmailAPIView.as_view(), name='send-email'),
-    path('registrar_apertura/<int:documento_id>/', registrar_apertura, name='registrar_apertura'),
+
 ]
 
 if settings.DEBUG:
