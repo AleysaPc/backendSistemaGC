@@ -139,8 +139,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "correspondencia/static"),
 ]
-MEDIA_URL = '/documentos/'  # URL para acceder a los archivos multimedia
-MEDIA_ROOT = os.path.join(BASE_DIR, 'documentos')  # Ruta donde se almacenan los archivos multimedia
+MEDIA_URL = '/media/'  # URL para acceder a los archivos multimedia
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Ruta donde se almacenan los archivos multimedia
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
