@@ -1,5 +1,5 @@
 from documento.models import Documento, ContenidoDocumento
-from documento.serializars import DocumentoSerializer, ContenidoDocumentoSerializer
+from documento.serializers import DocumentoSerializer, ContenidoDocumentoSerializer
 from rest_framework import viewsets
 
 
