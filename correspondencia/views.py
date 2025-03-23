@@ -1,4 +1,3 @@
-from django.shortcuts import render
 
 from correspondencia.serializers import CorrespondenciaSerializer, CorrespondenciaEntranteSerializer,CorrespondenciaSalienteSerializer
 from correspondencia.models import Correspondencia, CorrespondenciaEntrante, CorrespondenciaSaliente

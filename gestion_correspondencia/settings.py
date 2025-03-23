@@ -125,9 +125,10 @@ TIME_ZONE = 'America/La_Paz'
 USE_I18N = True
 
 USE_TZ = True
-# Formato de fecha y hora en el Admin
-DATETIME_FORMAT = 'd/m/Y H:i'  # Formato: día/mes/año hora:minutos
 
+REST_FRAMEWORK = {
+    'DATETIME_FORMAT': "%d-%m-%Y %H:%M:%S",
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

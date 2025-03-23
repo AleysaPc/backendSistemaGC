@@ -26,6 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/correspondencia/',include(('correspondencia.urls','correspondencia'), namespace='correspondencia')),
     path('send-email', EmailAPIView.as_view(), name='send-email'),
+    path('api/v1/documento/',include(('documento.urls','documento'), namespace='documento')),
 
 ]
 

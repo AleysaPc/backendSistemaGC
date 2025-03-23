@@ -13,7 +13,7 @@ class Documento(models.Model):
     TIPO_CHOICES = [('enviado', 'Enviado'),
                     ('recibido', 'Recibido'),]
     
-    archivo = models.FileField(upload_to='ruta_archivo')
+    archivo = models.FileField(upload_to=ruta_archivo)
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
     nombre_archivo = models.CharField(max_length=255, blank=True)
     fecha_subida = models.DateTimeField(auto_now_add=True)
@@ -21,7 +21,6 @@ class Documento(models.Model):
     contenido_extraido = models.TextField(null=True, blank=True)
     #fue_abierto = models.BooleanField(default=False)  # Campo para rastrear aperturas
     
-
     def __str__(self):
         return self.nombre_archivo
 class ContenidoDocumento(models.Model):
