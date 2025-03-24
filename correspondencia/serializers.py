@@ -8,9 +8,28 @@ class CorrespondenciaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CorrespondenciaEntranteSerializer(serializers.ModelSerializer):
+    nombre_remitente = serializers.CharField(source='remitente.nombre', read_only=True)
+    ruta = serializers.CharField(source='documento.archivo.url', read_only=True)
+
     class Meta:
         model = CorrespondenciaEntrante
-        fields = '__all__'
+        fields = [
+            'id',
+            'fecha_registro',
+            'referencia',
+            'descripcion',
+            'paginas',
+            'prioridad',
+            'estado',
+            'nro_registro',
+            'fecha_recepcion',
+            'fecha_respuesta',
+            'remitente',
+            'documento',
+            'personal_destinatario',
+            'nombre_remitente',
+            'ruta'
+        ]
 
 class CorrespondenciaSalienteSerializer(serializers.ModelSerializer):
     class Meta:
