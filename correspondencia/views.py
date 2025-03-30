@@ -22,7 +22,7 @@ class CorrespondenciaView(viewsets.ModelViewSet):
 
 class CorrespondenciaEntranteView(viewsets.ModelViewSet):
     serializer_class = CorrespondenciaEntranteSerializer
-    queryset = CorrespondenciaEntrante.objects.all().order_by('id')
+    queryset = CorrespondenciaEntrante.objects.all().order_by('id_correspondencia_entrante')
 
     pagination_class = PaginacionPersonalizada
 

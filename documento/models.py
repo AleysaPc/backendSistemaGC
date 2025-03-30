@@ -10,6 +10,7 @@ def ruta_archivo(instance, filename):
 
 # Create your models here.
 class Documento(models.Model):
+    id_documento = models.AutoField(primary_key=True)
     TIPO_CHOICES = [('enviado', 'Enviado'),
                     ('recibido', 'Recibido'),]
     
@@ -24,6 +25,7 @@ class Documento(models.Model):
     def __str__(self):
         return self.nombre_archivo
 class ContenidoDocumento(models.Model):
+    id_contenido_documento = models.AutoField(primary_key=True)
     documento = models.ForeignKey(Documento, on_delete=models.CASCADE)
     fecha_procesamiento = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=50)
