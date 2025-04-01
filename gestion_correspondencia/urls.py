@@ -29,6 +29,11 @@ urlpatterns = [
     path('api/v1/documento/',include(('documento.urls','documento'), namespace='documento')),
     path('api/v1/cliente/',include(('cliente.urls','cliente'), namespace='cliente')),
     path('api/v1/plantilla/',include(('plantilla.urls','plantilla'), namespace='plantilla')),
+
+    #usuarios
+    path('api/v1/usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
+      # Password Reset (en su propia app opcionalmente)
+    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')), 
 ]
 
 # Solo en desarrollo: Servir archivos de MEDIA_ROOT

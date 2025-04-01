@@ -26,7 +26,7 @@ class CorrespondenciaEntranteAdmin(admin.ModelAdmin):
     def mostrar_remitente(self, obj):
        remitente = obj.remitente
        institucion = remitente.institucion 
-       return f"{remitente.apellido} - {institucion.nombre}"
+       return f"{remitente.apellido} - {institucion.nombre_institucion}"
     mostrar_remitente.short_description = 'Remitente'
 
     def fecha_recepcion_formateada(self, obj):

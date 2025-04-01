@@ -1,9 +1,9 @@
 from django.db import models
 from cliente.models import Cliente
-from usuarios.models import Personal
 from django.db import transaction
 from django.core.validators import MinValueValidator
 from django.utils.timezone import now
+from usuarios.models import CustomUser as User
 #TipoDocumento debemos revisar?
 class TipoDocumento(models.Model):
     id_tipo_documento = models.AutoField(primary_key=True)
@@ -43,7 +43,7 @@ class Correspondencia(models.Model):
     documento = models.ForeignKey('documento.Documento', on_delete=models.SET_NULL, null=True, blank=True, related_name="correspondencias_relacionadas")
     prioridad = models.CharField(max_length=20, choices=TIPO_CHOICES_PRIORIDAD)
     estado = models.CharField(max_length=20, choices=TIPO_CHOICES_ESTADO, default='en_revision')
-    personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
+    personal_destinatario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     
     class Meta:
         abstract = False
@@ -104,7 +104,7 @@ class CorrespondenciaInterna(models.Model):
     cite = models.CharField(max_length=100, unique=True, blank=True)  # Código único del documento
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     contenido = models.TextField()
-    personal_destinatario = models.ForeignKey(Personal, on_delete=models.SET_NULL, null=True)
+    personal_destinatario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         unique_together = ('tipo', 'numero', 'gestion')  # Evita duplicados por tipo y año
@@ -134,7 +134,7 @@ class Notificacion(models.Model):
 
     ESTADO_NOTIFICACION_CHOICES = [('no_leido', 'No leido'), ('leido', 'Leido')]
 
-    personal = models.ForeignKey(Personal, on_delete=models.CASCADE, related_name='notificaciones')
+    personal = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notificaciones')
     mensaje = models.TextField()
     fecha_notificacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=50)
@@ -145,10 +145,10 @@ class FlujoAprobacion(models.Model):
     ESTADO_CHOICES = [('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')]
 
     correspondencia = models.ForeignKey(Correspondencia, on_delete=models.CASCADE, related_name='flujos_aprobacion')
-    revisor = models.ForeignKey(Personal, on_delete=models.CASCADE)
+    revisor = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha_revision = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=50, choices=ESTADO_CHOICES, default="Pendiente")
     comentarios = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.revisor.usuario} - {self.estado}"
+        return f"{self.revisor.username} - {self.estado}"
