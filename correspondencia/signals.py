@@ -33,7 +33,7 @@ def enviar_notificacion_correo(sender, instance, created, **kwargs):
             cargo_remitente = remitente.cargo
         
             if remitente.institucion:
-                empresa_remitente = remitente.institucion.nombre
+                empresa_remitente = remitente.institucion.nombre_institucion
             else:
                 empresa_remitente = 'No especificado'
         else:

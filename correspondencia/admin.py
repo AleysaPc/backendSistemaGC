@@ -1,6 +1,6 @@
 from django.contrib import admin
 from plantilla.utils import generar_documento_word
-from .models import CorrespondenciaEntrante, CorrespondenciaSaliente, TipoDocumento
+from .models import CorrespondenciaEntrante, CorrespondenciaSaliente, TipoDocumento, Correspondencia
 from .models import TipoDocumentoInterno, CorrespondenciaInterna
 
 
@@ -98,4 +98,6 @@ class CorrespondenciaInternaAdmin(admin.ModelAdmin):
 # Registra los demás modelos sin personalización
 
 admin.site.register(TipoDocumento)
+
+admin.site.register(Correspondencia)
 

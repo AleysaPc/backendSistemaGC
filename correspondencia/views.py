@@ -17,8 +17,20 @@ class PaginacionPersonalizada(PageNumberPagination):
 
 # Create your views here.
 class CorrespondenciaView(viewsets.ModelViewSet):
-    queryset = Correspondencia.objects.all()
     serializer_class = CorrespondenciaSerializer
+    queryset = Correspondencia.objects.all().order_by('id_correspondencia')
+
+    pagination_class = PaginacionPersonalizada
+
+    def list(self, request, *args, **kwargs):
+        all_data = request.query_params.get('all_data', 'false').lower() == 'true'  # Convierte a booleano correctamente
+
+        if all_data:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response({'data': serializer.data}, status=status.HTTP_200_OK)
+
+        return super().list(request, *args, **kwargs)  # Usa la paginación normal
 
 class CorrespondenciaEntranteView(viewsets.ModelViewSet):
     serializer_class = CorrespondenciaEntranteSerializer
